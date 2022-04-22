@@ -46,55 +46,42 @@ def matriz_tri(A):
     D.append(c)
     return D
 
-def decomposicao_LU_tri(n,A):
+def decomposicao_LU_tri(n,A,d):
     a=A[0]
     b=A[1]
     c=A[2]
-    L=[0]
-    U=[b[0]]
+    l=np.zeros(n)
+    u=np.zeros(n)
+    y=np.zeros(n)
+    x=np.zeros(n)
+    u[0]=c[0]/b[0]
+    y[0]=d[0]/b[0]
+
     for i in range (1,n,1):
         #print("i:"+str(i))
-        li=a[i]/U[i-1]
+        l[i]=a[i]/u[i-1]
         #print("li"+str(i)+":"+str(li))
-        ui=b[i]-li*c[i-1]
+        u[i]=b[i]-l[i]*c[i-1]
         #print("ui"+str(i)+":"+str(ui))
-        L.append(li)
-        U.append(ui)
-    return L,U
-
-def Resolve_Sis(L,d,U,A):
-    a=A[0]
-    b=A[1]
-    c=A[2]
-    y=[d[0]/b[0]]
-    x=np.zeros(len(L),dtype=float)
-    
-    for i in range(1,len(L)):
-        yi=(d[i]-a[i]*y[i-1])/(b[i]-a[i]*L[i])
-        y.append(yi)
-
-    x[len(L)-1]=(y[len(L)-1])
-    for i in range(len(L)-2,-1,-1):
-        xi=y[i]-L[i+1]*x[i+1]
-        x[i]=xi
-    x=np.round(x)
-    return y,x
+        y[i]=d[i]-l[i]*c[i-1]
+    x[n-1]=(y[n-1])/(u[n-1])
+    for i in range(n-2,-1,-1):
+        x[i]=(y[i]-c[i]*x[i+1])/u[i]
 
 
+    return l,u,y,x
 
 
-
-
-
-matriz=[[2,1,0,0,0],[1,2,1,0,0],[0,1,2,1,0],[0,0,1,2,1],[0,0,0,1,2]]
-solução=[4,4,0,0,2]
+matriz=[[5,4,0,0,0,0],[1,3,1,0,0,0],[0,2,4,1,0,0],[0,0,1,2,1,0],[0,0,0,2,3,2],[0,0,0,0,1,2]]
+solução=[13,10,20,16,35,17]
 print("A: ","\n", str(np.array(matriz)))
 D=matriz_tri(matriz)
-print("D: "+str(D))
-L,U=decomposicao_LU_tri(len(matriz),D)
+print("a: "+str(D[0]))
+print("b: "+str(D[1]))
+print("c: "+str(D[2]))
+print("d: "+str(solução))
+L,U,y,x=decomposicao_LU_tri(len(matriz),D,solução)
 print("L: "+str(L))
 print("U: "+str(U))
-
-y,x=Resolve_Sis(L,solução,U,D)
 print("y: "+str(y))
 print("x: "+str(x))
