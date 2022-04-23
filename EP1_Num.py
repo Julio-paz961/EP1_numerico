@@ -2,6 +2,12 @@ import math
 import numpy as np
 import math
 
+def transpoe_matriz_1D(lista):
+    a = lista
+    b = np.array(a)
+    c = np.array([a])
+    return c.T
+
 def gera_matriz_cic(n):
     a=[]
     b=[]
@@ -9,13 +15,13 @@ def gera_matriz_cic(n):
     d=[]
     M=[]
     for i in range(1,n+1,1):
-        if i!=n+1:
-            a.append((2*i-1)/4/i)
+        if i!=n:
+            a.append((2*i-1)/(4*i))
             c.append(1-a[i-1])
             b.append(2)
             d.append(math.cos((2*math.pi*(i**2))/((n)**2)))
         else:
-            a.append(((2*(n)-1)/2/(n)))
+            a.append(((2*(n)-1)/(4*i)))
             c.append(1-a[i-1])
             b.append(2)
             d.append(math.cos((2*math.pi*(i**2))/((n)**2)))
@@ -97,32 +103,35 @@ def decomposicao_LU_tri(n,A,d):
 
 
 def decomposicao_LU_tri_cic(n,A,d):
+    n=n-1
     a=A[0]
     b=A[1]
     c=A[2]
-    Tn=[np.copy(a[:(len(a)-1)]),np.copy(b[:(len(b)-1)]),np.copy(c[:(len(c)-1)])]
+    a_sub=[0]
+    b_sub=[]
+    c_sub=[]
+    for i in range(n-1):
+        a_sub.append(a[i])
+        b_sub.append(b[i])
+        c_sub.append(c[i])
+    b_sub.append(b[n])
+    c_sub.append(0)
+
+    Tn=[a_sub,b_sub,c_sub]
     Sol_Tn=np.copy(d[:(len(d)-1)])
-    v=np.zeros(n-1,dtype=float)
-    w=np.zeros(n-1,dtype=float)
-    v[0]=a[0]
-    v[n-2]=c[n-2]
-    w[0]=c[n-1]
-    w[n-2]=a[n-1]
-    
-    y_barra=decomposicao_LU_tri(n-1,Tn,Sol_Tn)[2]
-    z_barra=decomposicao_LU_tri(n-1,Tn,v)[2]
-    xn=(d[n-1]-c[n-1]*y_barra[0]-a[n-1]*y_barra[n-2])/(b[n-1]-c[n-1]*z_barra[0]-a[n-1]*z_barra[n-2])
+    v=np.zeros(n,dtype=float)
+    w=np.zeros(n,dtype=float)
+    v[0]=a[n]
+    v[n-1]=c[n-1]
+    w[0]=c[n]
+    w[n-1]=a[n-1]
+
+    y_barra=decomposicao_LU_tri(n,Tn,Sol_Tn)[2]
+    z_barra=decomposicao_LU_tri(n,Tn,v)[2]
+    xn=(d[n]-w[0]*y_barra[0]-w[n-1]*y_barra[n-1])/(b[n]-w[0]*z_barra[0]-w[n-1]*z_barra[n-1])
     x_barra=y_barra-xn*z_barra
     
     return np.append(x_barra,xn)
-
-    
-#matriz=[[5,4,0,0,0,0],[1,3,1,0,0,0],[0,2,4,1,0,0],[0,0,1,2,1,0],[0,0,0,2,3,2],[0,0,0,0,1,2]]
-#solução=[13,10,20,16,35,17]
-#matriz=[[2,1,0,0,0],[1,2,1,0,0],[0,1,2,1,0],[0,0,1,2,1],[0,0,0,1,2]]
-#solução=[4,4,0,0,2]
-matriz=[[2,1,0,0,0],[1,2,1,0,0],[0,1,2,1,0],[0,0,1,2,1],[0,0,0,1,2]]
-solução=[4,4,0,0,2]
 
 
 D=gera_matriz_cic(5)
